@@ -5,10 +5,36 @@ import {
   TouchableOpacity,
   View,
   TextInput,
+  FlatList,
 } from 'react-native';
-import React from 'react';
+import React, {useState} from 'react';
+
+import {useSelector, useDispatch} from 'react-redux';
+import {addTodo, remove} from '../../redux/todos/todosSlice';
+import {nanoid} from '@reduxjs/toolkit';
 
 const Home = () => {
+  const todos = useSelector(state => state.todos.items);
+  const [input, setInput] = useState('');
+  const dispatch = useDispatch();
+
+  const renderItem = ({item}) => {
+    return (
+      <View style={{padding: 7}}>
+        <View style={styles.todos_container}>
+          <Text style={styles.todo_text}>{item.text}</Text>
+          <TouchableOpacity
+            style={styles.remove_button}
+            onPress={() => {
+              dispatch(remove(item.id));
+            }}>
+            <Text style={styles.remove_button_text}>Delete</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
   return (
     <View>
       <Text style={styles.headerText}> Todos </Text>
@@ -18,16 +44,20 @@ const Home = () => {
             style={styles.input}
             placeholder={'Write Something...'}
             placeholderTextColor={'#bdbdbd'}
+            onChangeText={setInput}
+            value={input}
           />
-          <TouchableOpacity style={styles.addButton}>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => {
+              dispatch(addTodo({id: nanoid(), text: input}));
+              setInput('');
+            }}>
             <Text style={styles.addButton_text}>Add</Text>
           </TouchableOpacity>
         </View>
-        <View style={styles.todos_container}>
-          <Text style={styles.todo_text}>Yürüyüşe Çık</Text>
-          <TouchableOpacity style={styles.remove_button}>
-            <Text style={styles.remove_button_text}>Delete</Text>
-          </TouchableOpacity>
+        <View style={styles.flatList_container}>
+          <FlatList data={todos} renderItem={renderItem} />
         </View>
       </View>
     </View>
@@ -60,7 +90,14 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     elevation: 5,
+    marginTop: 5,
+  },
+  flatList_container: {
+    width: w,
+    height: h,
+    borderRadius: 20,
     marginTop: 10,
+    alignItems: 'center',
   },
   todo_text: {
     color: 'black',
@@ -104,5 +141,6 @@ const styles = StyleSheet.create({
   input: {
     width: w / 1.5,
     paddingLeft: 10,
+    color: 'black',
   },
 });
