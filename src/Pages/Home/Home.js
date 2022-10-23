@@ -10,8 +10,7 @@ import {
 import React, {useState} from 'react';
 
 import {useSelector, useDispatch} from 'react-redux';
-import {addTodo, remove} from '../../redux/todos/todosSlice';
-import {nanoid} from '@reduxjs/toolkit';
+import {addTodo, remove, removedItem} from '../../redux/todos/todosSlice';
 
 const Home = () => {
   const todos = useSelector(state => state.todos.items);
@@ -26,6 +25,7 @@ const Home = () => {
           <TouchableOpacity
             style={styles.remove_button}
             onPress={() => {
+              dispatch(removedItem({id: item.id}));
               dispatch(remove(item.id));
             }}>
             <Text style={styles.remove_button_text}>Delete</Text>
@@ -50,11 +50,16 @@ const Home = () => {
           <TouchableOpacity
             style={styles.addButton}
             onPress={() => {
-              dispatch(addTodo({id: nanoid(), text: input}));
+              dispatch(addTodo({text: input}));
               setInput('');
             }}>
             <Text style={styles.addButton_text}>Add</Text>
           </TouchableOpacity>
+        </View>
+        <View style={styles.leftItem_container}>
+          <Text style={styles.leftItem_text}>
+            {Object.keys(todos).length} items left
+          </Text>
         </View>
         <View style={styles.flatList_container}>
           <FlatList data={todos} renderItem={renderItem} />
@@ -94,7 +99,7 @@ const styles = StyleSheet.create({
   },
   flatList_container: {
     width: w,
-    height: h,
+    height: h / 1.5,
     borderRadius: 20,
     marginTop: 10,
     alignItems: 'center',
@@ -125,7 +130,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     marginTop: 10,
-    marginBottom: 30,
+    marginBottom: 10,
   },
   addButton: {
     backgroundColor: '#d6d6d6',
@@ -142,5 +147,15 @@ const styles = StyleSheet.create({
     width: w / 1.5,
     paddingLeft: 10,
     color: 'black',
+  },
+  leftItem_container: {
+    width: w,
+    height: h / 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  leftItem_text: {
+    color: 'gray',
+    fontSize: 15,
   },
 });
